@@ -31,15 +31,24 @@ variable "internal_networks" {
   description = "Internal network CIDR blocks."
 }
 
-data "aws_ami" "centos" {
-  most_recent = true
+data "aws_ami" "ami" {
+  most_recent      = true
+  owners           = ["amazon"]
 
   filter {
-    name   = "product-code"
-    values = ["aw0evgkw8e5c1q413zgy5pjce"]
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 
-  owners = ["aws-marketplace"]
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 data "aws_subnet" "public" {
@@ -49,7 +58,7 @@ data "aws_subnet" "public" {
 locals {
   vpc_id        = data.aws_subnet.public.vpc_id
   project       = var.project
-  ami_id        = data.aws_ami.centos.id
+  ami_id        = data.aws_ami.ami.id
   disk_size     = var.disk_size
   subnet_id     = var.subnet_id
   ssh_key       = var.ssh_key
